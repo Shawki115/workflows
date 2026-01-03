@@ -67,7 +67,7 @@ Open PowerShell/Terminal and verify:
 docker --version
 docker compose version
 
-Step 3 — Create Project Folder
+##Step 3 — Create Project Folder
 Linux
 mkdir -p ~/n8n-cloudflare
 cd ~/n8n-cloudflare
@@ -79,7 +79,7 @@ C:\projects\n8n-cloudflare
 
 Then open a terminal in that folder.
 
-Step 4 — Create .env (Configuration)
+##Step 4 — Create .env (Configuration)
 
 Create a .env file in the project folder.
 
@@ -125,7 +125,7 @@ $bytes = New-Object byte[] 32
 (New-Object System.Security.Cryptography.RNGCryptoServiceProvider).GetBytes($bytes)
 ($bytes | ForEach-Object { $_.ToString("x2") }) -join ""
 
-Step 5 — Create docker-compose.yml
+##Step 5 — Create docker-compose.yml
 
 Create a file named docker-compose.yml in the same folder:
 
@@ -159,7 +159,7 @@ n8n is bound to localhost only (127.0.0.1) for security.
 
 Cloudflare Tunnel is the only public access.
 
-Step 6 — Create a Cloudflare Tunnel (Dashboard)
+##Step 6 — Create a Cloudflare Tunnel (Dashboard)
 
 Go to Cloudflare Dashboard → Zero Trust
 
@@ -175,7 +175,7 @@ Paste it into docker-compose.yml in:
 
 CLOUDFLARE_TUNNEL_TOKEN=...
 
-Step 7 — Add a Public Hostname (Cloudflare)
+##Step 7 — Add a Public Hostname (Cloudflare)
 
 Inside your tunnel settings:
 
@@ -193,7 +193,7 @@ URL: http://n8n:5678
 
 Save.
 
-Step 8 — Start Everything (Run)
+##Step 8 — Start Everything (Run)
 Linux
 docker compose up -d
 docker logs -f n8n
@@ -212,7 +212,7 @@ Now open:
 
 https://n8n.yourdomain.com
 
-Step 9 — Security Checklist (Recommended)
+##Step 9 — Security Checklist (Recommended)
 
 ✅ Keep .env secret (do NOT upload it to GitHub)
 
@@ -229,7 +229,7 @@ Add this to .gitignore:
 *.key
 secrets/
 
-Step 10 — Update / Patch (Upgrade n8n Safely)
+##Step 10 — Update / Patch (Upgrade n8n Safely)
 
 When you want to update to the latest n8n version:
 
@@ -242,7 +242,7 @@ Restart only:
 
 docker compose restart n8n
 
-Troubleshooting
+##Troubleshooting
 Tunnel is running but website doesn’t open
 
 Check logs:
