@@ -2,7 +2,7 @@
 
 This n8n workflow automates the process of fetching, ranking, and publishing AI news. It integrates a "Human-in-the-loop" mechanism via Gmail to ensure high-quality content selection before posting to Facebook.
 
-![Project Preview](<./Auto facebook post/image/Auto facebook post.PNG>)
+![Project Preview](./image/Auto facebook post.PNG)
 
 
 ---
