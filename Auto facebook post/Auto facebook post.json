@@ -1,0 +1,178 @@
+{
+  "name": "Auto facebook post - Sanitized",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 13
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [ -368, 64 ],
+      "id": "trigger-id",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            { "fieldToAggregate": "title" },
+            { "fieldToAggregate": "link" },
+            { "fieldToAggregate": "pubDate" },
+            { "fieldToAggregate": "contentSnippet" }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [ 48, 64 ],
+      "id": "aggregate-id",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "your-email@example.com",
+        "subject": "ai news",
+        "message": "={{ $json.output }}",
+        "responseType": "freeText",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [ 736, 64 ],
+      "id": "gmail-node-id",
+      "name": "Send a message",
+      "webhookId": "REDACTED_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "operation": "scrape",
+        "url": "={{ $json.data.text }}",
+        "requestOptions": {}
+      },
+      "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+      "typeVersion": 1,
+      "position": [ 944, 64 ],
+      "id": "firecrawl-id",
+      "name": "Scrape a url and get its content",
+      "credentials": {
+        "firecrawlApi": {
+          "id": "YOUR_FIRECRAWL_CREDENTIAL_ID",
+          "name": "Firecrawl account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v23.0",
+        "node": "YOUR_FACEBOOK_PAGE_ID",
+        "edge": "feed",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "message",
+                "value": "={{ $json.output }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [ 1056, 288 ],
+      "id": "facebook-node-id",
+      "name": "Facebook Graph API"
+    },
+    {
+      "parameters": {
+        "url": "https://venturebeat.com/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [ -144, 64 ],
+      "id": "rss-id",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.0-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=you are expert in choosing topics to be posted on social media \niwill give you list with different ai news i scraped from the internet and you will chose the most 5 important and recent news the output will these points for each one \ntitle\ndate \nlink\n{{ $json.title }}\n{{ $json.link }}\n{{ $json.pubDate }}\n\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [ 336, 64 ],
+      "id": "gemini-1-id",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GOOGLE_CREDENTIAL_ID",
+          "name": "Google Gemini API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.0-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a professional and friendly digital content expert, specialized in crafting engaging and high-performing social media posts. Your task is to transform the following topic into a professional, interesting, and interaction-driven post, specifically optimized for Facebook:\n\nTopic/Content: {{ $json.data.markdown }}\n\nInstructions & Rules:\nPersona & Tone: The tone must be friendly, positive, and encouraging, while maintaining a high level of professionalism and technical credibility.\n\nMandatory Opening: The post must always start with a friendly conversational hook, such as: \"Today's news is about...\" or \"Are you ready for...\" or \"Today's interesting topic is...\".\n\nContent & Formatting (Optimized for Facebook):\n\nKeep paragraphs very short: (Maximum 2-3 sentences per paragraph).\n\nUse double line breaks: Ensure there is a full empty line between every paragraph to make it easily readable on mobile devices.\n\nUse Emojis strategically: Add visual appeal using relevant emojis without overdoing it, maintaining a professional look.\n\nClosing: End the post with an open-ended question or a clear Call to Action (CTA) to encourage comments and shares.\n\nHashtags: Include 3 to 5 relevant hashtags at the very end of the post.\n\nOutput Requirement: Provide ONLY the post text, ready to be copied and pasted directly to Facebook. Do not include any introductions, explanations, or meta-talk.\n\nExample of Required Formatting:\n\"Today's topic is about the future of AI in business management! 🚀\n\nAI has moved beyond simple automation to become an indispensable strategic partner. ✨\n\nFrom analyzing big data to making complex decisions, AI opens new horizons for efficiency and innovation. Companies that adopt these technologies now will lead the scene in the coming decade. 💡\n\nWhat is the AI tool that has impacted your workflow the most so far? Share your experiences below! 👇\n\n#AI #BusinessManagement #DigitalTransformation\""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [ 496, 304 ],
+      "id": "gemini-2-id",
+      "name": "Message a model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GOOGLE_CREDENTIAL_ID",
+          "name": "Google Gemini API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": { "main": [[ { "node": "RSS Read", "type": "main", "index": 0 } ]] },
+    "Aggregate": { "main": [[ { "node": "Message a model", "type": "main", "index": 0 } ]] },
+    "Send a message": { "main": [[ { "node": "Scrape a url and get its content", "type": "main", "index": 0 } ]] },
+    "Scrape a url and get its content": { "main": [[ { "node": "Message a model1", "type": "main", "index": 0 } ]] },
+    "RSS Read": { "main": [[ { "node": "Aggregate", "type": "main", "index": 0 } ]] },
+    "Message a model": { "main": [[ { "node": "Send a message", "type": "main", "index": 0 } ]] },
+    "Message a model1": { "main": [[ { "node": "Facebook Graph API", "type": "main", "index": 0 } ]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Aden"
+  }
+}
